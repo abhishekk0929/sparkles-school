@@ -77,4 +77,512 @@
     .addon-item input { width: 18px; height: 18px; accent-color: var(--primary); }
 
     /* Buttons */
-    .btn { padding: 12px 16px; border: none; border-radius: 8px; font-weight: 700; font-size: 0.88rem; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 8px; width
+    .btn { padding: 12px 16px; border: none; border-radius: 8px; font-weight: 700; font-size: 0.88rem; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 8px; width: 100%; text-decoration: none; }
+    .btn-primary { background: var(--primary); color: white; }
+    .btn-success { background: var(--success); color: white; }
+    .btn-outline { border: 1px solid var(--border); background: white; color: var(--text); }
+    .btn-whatsapp { background: #25D366; color: white; }
+
+    /* Student Card */
+    .student-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px; margin-bottom: 10px; box-shadow: var(--shadow-sm); display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
+    .student-info h3 { font-size: 0.95rem; font-weight: 700; margin-bottom: 2px; }
+    .student-info p { font-size: 0.78rem; color: var(--text-muted); }
+    .badge { padding: 4px 8px; border-radius: 6px; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; }
+    .badge-clear { background: var(--success-bg); color: var(--success); }
+    .badge-due { background: var(--danger-bg); color: var(--danger); }
+
+    /* Modal / Drawer */
+    .modal { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 200; display: none; align-items: flex-end; justify-content: center; }
+    .modal.active { display: flex; }
+    .modal-content { background: var(--surface); border-radius: 20px 20px 0 0; width: 100%; max-width: 600px; max-height: 90vh; overflow-y: auto; padding: 20px; animation: slideUp 0.25s ease-out; }
+    @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+
+    /* Attendance List */
+    .attendance-item { display: flex; align-items: center; justify-content: space-between; padding: 12px; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; margin-bottom: 8px; }
+    .att-btns { display: flex; gap: 6px; }
+    .att-btn { border: 1px solid var(--border); background: white; padding: 6px 12px; border-radius: 6px; font-weight: 700; font-size: 0.75rem; cursor: pointer; }
+    .att-btn.p.active { background: var(--success); color: white; border-color: var(--success); }
+    .att-btn.a.active { background: var(--danger); color: white; border-color: var(--danger); }
+    .att-btn.l.active { background: var(--warning); color: white; border-color: var(--warning); }
+
+    .address-box { font-size: 0.75rem; color: var(--text-muted); text-align: center; margin-top: 4px; line-height: 1.3; }
+    .cloud-badge { display: inline-flex; align-items: center; gap: 4px; font-size: 0.7rem; color: #2e7d32; font-weight: bold; background: #e8f5e9; padding: 2px 8px; border-radius: 12px; margin-top: 4px; }
+    .spin { animation: fa-spin 1s infinite linear; }
+  </style>
+</head>
+<body>
+
+  <!-- Security Pin Lock -->
+  <div id="lockScreen" class="lock-overlay">
+    <div class="lock-box">
+      <i class="fa-solid fa-user-shield" style="font-size: 2.5rem; color: var(--primary);"></i>
+      <h2 style="margin-top: 10px; font-size: 1.2rem;">Staff Security Access</h2>
+      <p style="font-size: 0.8rem; color: var(--text-muted);">Enter 4-digit PIN to access school logs</p>
+      <div id="pinDisplay" class="pin-display">••••</div>
+      <div class="keypad">
+        <button type="button" onclick="pressPin('1')">1</button>
+        <button type="button" onclick="pressPin('2')">2</button>
+        <button type="button" onclick="pressPin('3')">3</button>
+        <button type="button" onclick="pressPin('4')">4</button>
+        <button type="button" onclick="pressPin('5')">5</button>
+        <button type="button" onclick="pressPin('6')">6</button>
+        <button type="button" onclick="pressPin('7')">7</button>
+        <button type="button" onclick="pressPin('8')">8</button>
+        <button type="button" onclick="pressPin('9')">9</button>
+        <button type="button" onclick="clearPin()">C</button>
+        <button type="button" onclick="pressPin('0')">0</button>
+        <button type="button" onclick="checkPin()"><i class="fa-solid fa-arrow-right"></i></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Header -->
+  <header class="header">
+    <div class="header-content">
+      <div class="brand">
+        <img src="logo.png" alt="Sparkles Pre School Logo" onerror="this.style.display='none'">
+        <div class="brand-text">
+          <h1>Sparkles Pre School</h1>
+          <p>Play • Learn • Sparkle</p>
+        </div>
+      </div>
+      <button onclick="lockApp()" class="btn btn-outline" style="width: auto; padding: 6px 10px; font-size: 0.75rem;"><i class="fa-solid fa-lock"></i> Lock</button>
+    </div>
+  </header>
+
+  <!-- Main App View Container -->
+  <main class="container">
+
+    <!-- View 1: Fees & Students Overview -->
+    <section id="view-fees">
+      <div style="text-align: center; margin-bottom: 8px;">
+        <span class="cloud-badge"><i class="fa-solid fa-cloud"></i> Live Cloud Sync Enabled</span>
+      </div>
+      <div class="stats-grid">
+        <div class="stat-card primary">
+          <div class="label">Total Dues Left</div>
+          <div class="value" id="stat-total-due">₹0</div>
+        </div>
+        <div class="stat-card">
+          <div class="label">Collected Total</div>
+          <div class="value" id="stat-total-collected" style="color: var(--success);">₹0</div>
+        </div>
+      </div>
+
+      <div style="display: flex; gap: 8px; margin-bottom: 12px;">
+        <input type="text" id="searchStudent" class="form-control" placeholder="Search student name or class..." oninput="renderStudents()">
+        <button onclick="manualRefresh()" id="refreshBtn" class="btn btn-outline" style="width: auto; white-space: nowrap; padding: 10px 12px;"><i class="fa-solid fa-rotate-right"></i></button>
+        <button onclick="openModal('addStudentModal')" class="btn btn-primary" style="width: auto; white-space: nowrap;"><i class="fa-solid fa-plus"></i> Add</button>
+      </div>
+
+      <div id="studentList"></div>
+    </section>
+
+    <!-- View 2: Attendance -->
+    <section id="view-attendance" style="display: none;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+        <div>
+          <h2 style="font-size: 1.1rem; font-weight: 800;">Daily Attendance</h2>
+          <p id="att-date" style="font-size: 0.75rem; color: var(--text-muted);"></p>
+        </div>
+        <button onclick="markAllPresent()" class="btn btn-outline" style="width: auto; padding: 6px 10px; font-size: 0.75rem;"><i class="fa-solid fa-check-double"></i> Mark All Present</button>
+      </div>
+      <div id="attendanceList"></div>
+    </section>
+
+    <!-- View 3: Settings & Security -->
+    <section id="view-settings" style="display: none;">
+      <div style="background: white; border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; margin-bottom: 16px; text-align: center;">
+        <img src="logo.png" style="width: 70px; height: 70px; border-radius: 50%; margin: 0 auto 8px; display: block;" alt="Sparkles Logo" onerror="this.style.display='none'">
+        <h2 style="font-size: 1.1rem;">Sparkles Pre School</h2>
+        <p class="address-box">Baba Bazaar Road, Lawsons Bay Colony, Pedda Waltair, Visakhapatnam</p>
+      </div>
+
+      <div style="background: white; border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; margin-bottom: 16px;">
+        <h3 style="font-size: 0.9rem; font-weight: 700; margin-bottom: 8px;"><i class="fa-solid fa-key"></i> Security PIN Settings</h3>
+        <p style="font-size: 0.78rem; color: var(--text-muted); margin-bottom: 10px;">Change the 4-digit access code for staff login:</p>
+        <div style="display: flex; gap: 8px;">
+          <input type="password" id="newPinInput" class="form-control" maxlength="4" placeholder="Enter new 4-digit PIN">
+          <button onclick="updateCustomPin()" class="btn btn-primary" style="width: auto; white-space: nowrap;">Update PIN</button>
+        </div>
+      </div>
+
+      <div style="background: white; border: 1px solid var(--border); border-radius: var(--radius); padding: 16px;">
+        <h3 style="font-size: 0.9rem; font-weight: 700; margin-bottom: 12px;"><i class="fa-solid fa-database"></i> App Data Options</h3>
+        <button onclick="exportData()" class="btn btn-outline" style="margin-bottom: 8px;"><i class="fa-solid fa-download"></i> Export Excel/CSV Data Backup</button>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Bottom Navigation -->
+  <nav class="bottom-nav">
+    <button class="nav-item active" onclick="switchTab('fees', this)"><i class="fa-solid fa-wallet"></i><span>Fees & Dues</span></button>
+    <button class="nav-item" onclick="switchTab('attendance', this)"><i class="fa-solid fa-calendar-check"></i><span>Attendance</span></button>
+    <button class="nav-item" onclick="switchTab('settings', this)"><i class="fa-solid fa-gear"></i><span>Settings</span></button>
+  </nav>
+
+  <!-- Modal: Add Student -->
+  <div id="addStudentModal" class="modal">
+    <div class="modal-content">
+      <h2 style="font-size: 1.1rem; margin-bottom: 12px;">Add New Student</h2>
+      <div class="form-group">
+        <label>Student Name</label>
+        <input type="text" id="new-name" class="form-control" placeholder="e.g. Ananya Rao">
+      </div>
+      <div class="form-group">
+        <label>Parent Contact (WhatsApp Number)</label>
+        <input type="tel" id="new-phone" class="form-control" placeholder="e.g. 9876543210">
+      </div>
+      <div class="form-group">
+        <label>Class / Group</label>
+        <select id="new-class" class="form-control">
+          <option value="Play Group">Play Group (Term: ₹14,000)</option>
+          <option value="Nursery">Nursery (Term: ₹15,000)</option>
+          <option value="LKG">LKG (Term: ₹15,500)</option>
+          <option value="UKG">UKG (Term: ₹16,000)</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Monthly Add-ons Enrolled</label>
+        <div class="addons-group">
+          <label class="addon-item">
+            <span>Day Care (+₹10,000/mo)</span>
+            <input type="checkbox" id="add-daycare">
+          </label>
+          <label class="addon-item">
+            <span>Chess Class (+₹3,000/mo)</span>
+            <input type="checkbox" id="add-chess">
+          </label>
+          <label class="addon-item">
+            <span>Dance Class (+₹1,500/mo)</span>
+            <input type="checkbox" id="add-dance">
+          </label>
+        </div>
+      </div>
+      <div style="display: flex; gap: 8px; margin-top: 16px;">
+        <button onclick="closeModal('addStudentModal')" class="btn btn-outline">Cancel</button>
+        <button onclick="saveStudent()" class="btn btn-primary">Save Student</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Student Ledger & Record Payment -->
+  <div id="ledgerModal" class="modal">
+    <div class="modal-content">
+      <div id="ledger-details"></div>
+    </div>
+  </div>
+
+  <script>
+    // Live Cloud Database Credentials
+    const SUPABASE_URL = "https://kwbydnzbmzcsalvmkoqb.supabase.co";
+    const SUPABASE_ANON_KEY = "sb_publishable_UTDNUGurLS8rWivK8FjTlg_6PkGaJpB";
+    const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    // Pricing Structure
+    const TERM_FEES = { "Play Group": 14000, "Nursery": 15000, "LKG": 15500, "UKG": 16000 };
+    const MONTHLY_ADDONS = { daycare: 10000, chess: 3000, dance: 1500 };
+
+    let currentPin = "";
+    let savedPin = localStorage.getItem("sparkles_pin") || "5821";
+
+    let students = [];
+    let attendance = {};
+
+    // Fetch Real-time Cloud Data
+    async function fetchCloudData() {
+      try {
+        const { data: stData, error: stErr } = await supabaseClient.from('students').select('*').order('created_at', { ascending: false });
+        if (!stErr && stData) students = stData;
+
+        const today = new Date().toISOString().split('T')[0];
+        const { data: attData } = await supabaseClient.from('attendance').select('*').eq('date', today).single();
+        if (attData) attendance[today] = attData.records;
+
+        renderStudents();
+      } catch (err) {
+        console.error("Cloud sync error:", err);
+      }
+    }
+
+    async function manualRefresh() {
+      const btn = document.getElementById("refreshBtn");
+      btn.querySelector("i").classList.add("spin");
+      await fetchCloudData();
+      setTimeout(() => btn.querySelector("i").classList.remove("spin"), 500);
+    }
+
+    // Security PIN Controls
+    function pressPin(num) {
+      if (currentPin.length < 4) {
+        currentPin += num;
+        updatePinDisplay();
+      }
+    }
+
+    function clearPin() {
+      currentPin = "";
+      updatePinDisplay();
+    }
+
+    function updatePinDisplay() {
+      document.getElementById("pinDisplay").innerText = "•".repeat(currentPin.length) || "••••";
+    }
+
+    function checkPin() {
+      if (currentPin === savedPin) {
+        document.getElementById("lockScreen").style.display = "none";
+        currentPin = "";
+        updatePinDisplay();
+        fetchCloudData();
+      } else {
+        alert("Incorrect PIN! Please try again.");
+        clearPin();
+      }
+    }
+
+    function lockApp() {
+      document.getElementById("lockScreen").style.display = "flex";
+    }
+
+    function updateCustomPin() {
+      const val = document.getElementById("newPinInput").value.trim();
+      if (val.length === 4 && !isNaN(val)) {
+        savedPin = val;
+        localStorage.setItem("sparkles_pin", val);
+        alert("Security PIN successfully updated!");
+        document.getElementById("newPinInput").value = "";
+      } else {
+        alert("Please enter a valid 4-digit numeric PIN.");
+      }
+    }
+
+    // Navigation
+    function switchTab(tab, btn) {
+      document.querySelectorAll("main > section").forEach(s => s.style.display = "none");
+      document.querySelectorAll(".nav-item").forEach(b => b.classList.remove("active"));
+      document.getElementById("view-" + tab).style.display = "block";
+      btn.classList.add("active");
+      if (tab === "attendance") renderAttendance();
+      fetchCloudData();
+    }
+
+    function openModal(id) { document.getElementById(id).classList.add("active"); }
+    function closeModal(id) { document.getElementById(id).classList.remove("active"); }
+
+    // Save Student directly to Cloud DB with instant UI update
+    async function saveStudent() {
+      const name = document.getElementById("new-name").value.trim();
+      const phone = document.getElementById("new-phone").value.trim();
+      const studentClass = document.getElementById("new-class").value;
+      if (!name) return alert("Please enter student name");
+
+      const newStudent = {
+        id: Date.now(),
+        name,
+        phone,
+        class: studentClass,
+        daycare: document.getElementById("add-daycare").checked,
+        chess: document.getElementById("add-chess").checked,
+        dance: document.getElementById("add-dance").checked,
+        payments: []
+      };
+
+      students.unshift(newStudent);
+      renderStudents();
+      closeModal("addStudentModal");
+
+      await supabaseClient.from('students').insert([newStudent]);
+      document.getElementById("new-name").value = "";
+      document.getElementById("new-phone").value = "";
+    }
+
+    function calculateTotalFee(st) {
+      let base = (TERM_FEES[st.class] || 14000) * 3;
+      if (st.daycare) base += MONTHLY_ADDONS.daycare;
+      if (st.chess) base += MONTHLY_ADDONS.chess;
+      if (st.dance) base += MONTHLY_ADDONS.dance;
+      return base;
+    }
+
+    function calculatePaid(st) {
+      return (st.payments || []).reduce((sum, p) => sum + Number(p.amount), 0);
+    }
+
+    function renderStudents() {
+      const query = document.getElementById("searchStudent").value.toLowerCase();
+      const list = document.getElementById("studentList");
+      list.innerHTML = "";
+
+      let totalDue = 0;
+      let totalCollected = 0;
+
+      students.filter(s => s.name.toLowerCase().includes(query) || s.class.toLowerCase().includes(query)).forEach(st => {
+        const total = calculateTotalFee(st);
+        const paid = calculatePaid(st);
+        const due = total - paid;
+
+        totalDue += Math.max(0, due);
+        totalCollected += paid;
+
+        const card = document.createElement("div");
+        card.className = "student-card";
+        card.onclick = () => openLedger(st.id);
+        card.innerHTML = `
+          <div class="student-info">
+            <h3>${st.name}</h3>
+            <p>${st.class} ${st.daycare ? '• Day Care' : ''} ${st.chess ? '• Chess' : ''} ${st.dance ? '• Dance' : ''}</p>
+            <p style="margin-top: 4px;">Paid: ₹${paid.toLocaleString()} / Total: ₹${total.toLocaleString()}</p>
+          </div>
+          <div>
+            <span class="badge ${due <= 0 ? 'badge-clear' : 'badge-due'}">
+              ${due <= 0 ? 'CLEARED' : 'DUE: ₹' + due.toLocaleString()}
+            </span>
+          </div>
+        `;
+        list.appendChild(card);
+      });
+
+      document.getElementById("stat-total-due").innerText = "₹" + totalDue.toLocaleString();
+      document.getElementById("stat-total-collected").innerText = "₹" + totalCollected.toLocaleString();
+    }
+
+    function openLedger(id) {
+      const st = students.find(s => s.id === id);
+      if (!st) return;
+
+      const total = calculateTotalFee(st);
+      const paid = calculatePaid(st);
+      const due = total - paid;
+
+      let paymentsHTML = (st.payments || []).map((p) => `
+        <div style="display:flex; justify-content:space-between; font-size:0.8rem; padding: 6px 0; border-bottom: 1px dashed var(--border);">
+          <span>${p.date} (${p.method})</span>
+          <span style="font-weight:bold; color:var(--success);">+₹${Number(p.amount).toLocaleString()}</span>
+        </div>
+      `).join("") || `<p style="font-size:0.8rem; color:var(--text-muted);">No payment entries logged yet.</p>`;
+
+      document.getElementById("ledger-details").innerHTML = `
+        <h2 style="font-size:1.1rem; font-weight:800;">${st.name}</h2>
+        <p style="font-size:0.8rem; color:var(--text-muted); margin-bottom:12px;">Class: ${st.class} | Contact: ${st.phone || 'N/A'}</p>
+        
+        <div style="background:var(--bg); padding:12px; border-radius:8px; margin-bottom:12px; font-size:0.85rem;">
+          <div style="display:flex; justify-content:space-between; margin-bottom:4px;"><span>Total Fee (3 Terms + Addons):</span> <strong>₹${total.toLocaleString()}</strong></div>
+          <div style="display:flex; justify-content:space-between; margin-bottom:4px;"><span>Total Paid:</span> <strong style="color:var(--success);">₹${paid.toLocaleString()}</strong></div>
+          <div style="display:flex; justify-content:space-between; border-top:1px solid var(--border); padding-top:4px;"><span>Remaining Due:</span> <strong style="color:var(--danger);">₹${due.toLocaleString()}</strong></div>
+        </div>
+
+        <h3 style="font-size:0.85rem; font-weight:700; margin-bottom:6px;">Record New Payment</h3>
+        <div class="form-group">
+          <input type="number" id="pay-amount" class="form-control" placeholder="Enter Amount Paid (₹)">
+        </div>
+        <div class="form-group">
+          <select id="pay-method" class="form-control">
+            <option value="PhonePe / UPI">PhonePe / UPI</option>
+            <option value="Cash">Cash</option>
+            <option value="Bank Transfer">Bank Transfer</option>
+          </select>
+        </div>
+        <button onclick="recordPayment(${st.id})" class="btn btn-success" style="margin-bottom:8px;"><i class="fa-solid fa-check"></i> Save Payment Entry</button>
+        ${st.phone ? `<button onclick="sendWhatsAppReceipt('${st.name}', '${st.phone}', ${due})" class="btn btn-whatsapp" style="margin-bottom:12px;"><i class="fa-brands fa-whatsapp"></i> Send WhatsApp Due Notice</button>` : ''}
+
+        <h3 style="font-size:0.85rem; font-weight:700; margin-top:10px; margin-bottom:6px;">Payment History Log</h3>
+        <div style="max-height:120px; overflow-y:auto;">${paymentsHTML}</div>
+
+        <div style="display:flex; gap:8px; margin-top:16px;">
+          <button onclick="deleteStudent(${st.id})" class="btn btn-outline" style="color:var(--danger); flex:0.4;"><i class="fa-solid fa-trash"></i></button>
+          <button onclick="closeModal('ledgerModal')" class="btn btn-outline" style="flex:1;">Close</button>
+        </div>
+      `;
+      openModal("ledgerModal");
+    }
+
+    async function recordPayment(id) {
+      const amt = document.getElementById("pay-amount").value;
+      const method = document.getElementById("pay-method").value;
+      if (!amt || amt <= 0) return alert("Please enter a valid amount");
+
+      const st = students.find(s => s.id === id);
+      const now = new Date();
+      const dateStr = now.toISOString().split('T')[0] + " " + now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+      const updatedPayments = [...(st.payments || []), { amount: Number(amt), date: dateStr, method: method }];
+      st.payments = updatedPayments;
+      
+      renderStudents();
+      closeModal("ledgerModal");
+
+      await supabaseClient.from('students').update({ payments: updatedPayments }).eq('id', id);
+    }
+
+    async function deleteStudent(id) {
+      if (confirm("Are you sure you want to remove this student record?")) {
+        students = students.filter(s => s.id !== id);
+        renderStudents();
+        closeModal("ledgerModal");
+        await supabaseClient.from('students').delete().eq('id', id);
+      }
+    }
+
+    function sendWhatsAppReceipt(name, phone, due) {
+      const cleanPhone = phone.replace(/\D/g, '');
+      const msg = `Dear Parent, Greetings from Sparkles Pre School! 🌟%0A%0AThis is an update regarding ${name}'s fee ledger.%0AAll-time Pending Due Balance: ₹${due.toLocaleString()}.%0A%0AFor quick online payments via PhonePe/UPI, please contact school admin.%0AThank you!`;
+      window.open(`https://wa.me/91${cleanPhone}?text=${msg}`, '_blank');
+    }
+
+    // Attendance Functionality
+    function renderAttendance() {
+      const today = new Date().toISOString().split('T')[0];
+      document.getElementById("att-date").innerText = "Date: " + new Date().toLocaleDateString('en-IN', { weekday: 'long', year: 'numeric', month: 'short', day: 'numeric' });
+      const list = document.getElementById("attendanceList");
+      list.innerHTML = "";
+
+      if (!attendance[today]) attendance[today] = {};
+
+      students.forEach(st => {
+        const currentStatus = attendance[today][st.id] || 'P';
+        const item = document.createElement("div");
+        item.className = "attendance-item";
+        item.innerHTML = `
+          <div>
+            <div style="font-weight:700; font-size:0.88rem;">${st.name}</div>
+            <div style="font-size:0.75rem; color:var(--text-muted);">${st.class}</div>
+          </div>
+          <div class="att-btns">
+            <button class="att-btn p ${currentStatus === 'P' ? 'active' : ''}" onclick="setAttendance('${today}', ${st.id}, 'P')">P</button>
+            <button class="att-btn a ${currentStatus === 'A' ? 'active' : ''}" onclick="setAttendance('${today}', ${st.id}, 'A')">A</button>
+            <button class="att-btn l ${currentStatus === 'L' ? 'active' : ''}" onclick="setAttendance('${today}', ${st.id}, 'L')">L</button>
+          </div>
+        `;
+        list.appendChild(item);
+      });
+    }
+
+    async function setAttendance(date, studentId, status) {
+      if (!attendance[date]) attendance[date] = {};
+      attendance[date][studentId] = status;
+      renderAttendance();
+      await supabaseClient.from('attendance').upsert({ date: date, records: attendance[date] });
+    }
+
+    async function markAllPresent() {
+      const today = new Date().toISOString().split('T')[0];
+      if (!attendance[today]) attendance[today] = {};
+      students.forEach(s => attendance[today][s.id] = 'P');
+      renderAttendance();
+      await supabaseClient.from('attendance').upsert({ date: today, records: attendance[today] });
+    }
+
+    function exportData() {
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify({ students, attendance }));
+      const downloadAnchor = document.createElement('a');
+      downloadAnchor.setAttribute("href", dataStr);
+      downloadAnchor.setAttribute("download", `Sparkles_Backup_${new Date().toISOString().split('T')[0]}.json`);
+      document.body.appendChild(downloadAnchor);
+      downloadAnchor.click();
+      downloadAnchor.remove();
+    }
+  </script>
+</body>
+</html>
