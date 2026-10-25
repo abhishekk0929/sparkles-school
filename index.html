@@ -44,7 +44,7 @@
     .header { background: var(--surface); border-bottom: 1px solid var(--border); padding: 12px 16px; position: sticky; top: 0; z-index: 100; box-shadow: var(--shadow-sm); }
     .header-content { display: flex; align-items: center; justify-content: space-between; max-width: 600px; margin: 0 auto; }
     .brand { display: flex; align-items: center; gap: 12px; }
-    .logo-badge { width: 44px; height: 44px; border-radius: 50%; background: linear-gradient(135deg, #E91E63, #9C27B0); color: white; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 1.2rem; border: 2px solid var(--primary-light); box-shadow: var(--shadow-sm); }
+    .brand img { width: 44px; height: 44px; border-radius: 50%; object-fit: cover; border: 2px solid var(--primary-light); }
     .brand-text h1 { font-size: 1.1rem; font-weight: 800; color: var(--primary); line-height: 1.1; }
     .brand-text p { font-size: 0.7rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
 
@@ -129,7 +129,7 @@
   <header class="header">
     <div class="header-content">
       <div class="brand">
-        <div class="logo-badge">S</div>
+        <img src="https://lh3.googleusercontent.com/d/1Dq56iG450gOaPoxn88N81sB8v2I3zW9A" alt="Sparkles Pre School Logo">
         <div class="brand-text">
           <h1>Sparkles Pre School</h1>
           <p>Play • Learn • Sparkle</p>
@@ -178,8 +178,8 @@
     <!-- View 3: Settings & Security -->
     <section id="view-settings" style="display: none;">
       <div style="background: white; border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; margin-bottom: 16px; text-align: center;">
-        <div class="logo-badge" style="width: 60px; height: 60px; margin: 0 auto; font-size: 1.8rem;">S</div>
-        <h2 style="font-size: 1.1rem; margin-top: 8px;">Sparkles Pre School</h2>
+        <img src="https://lh3.googleusercontent.com/d/1Dq56iG450gOaPoxn88N81sB8v2I3zW9A" style="width: 70px; height: 70px; border-radius: 50%; margin: 0 auto 8px; display: block;" alt="Sparkles Logo">
+        <h2 style="font-size: 1.1rem;">Sparkles Pre School</h2>
         <p class="address-box">Baba Bazaar Road, Lawsons Bay Colony, Pedda Waltair, Visakhapatnam</p>
       </div>
 
@@ -287,7 +287,7 @@
         currentPin = "";
         updatePinDisplay();
       } else {
-        alert("Incorrect PIN! Please enter 5821.");
+        alert("Incorrect PIN! Please try again.");
         clearPin();
       }
     }
@@ -298,7 +298,7 @@
       if (val.length === 4 && !isNaN(val)) {
         savedPin = val;
         localStorage.setItem("sparkles_pin", val);
-        alert("Security PIN successfully updated to: " + val);
+        alert("Security PIN successfully updated!");
         document.getElementById("newPinInput").value = "";
       } else {
         alert("Please enter a valid 4-digit numeric PIN.");
