@@ -266,8 +266,9 @@
     const MONTHLY_ADDONS = { daycare: 10000, chess: 3000, dance: 1500 };
 
     let currentPin = "";
-    // PIN stored in localStorage or default to 1234
-    let savedPin = localStorage.getItem("sparkles_pin") || "1234";
+    // PIN set to 5821
+    let savedPin = localStorage.getItem("sparkles_pin") || "5821";
+    localStorage.setItem("sparkles_pin", savedPin);
 
     let students = JSON.parse(localStorage.getItem("sparkles_students")) || [
       { id: 1, name: "Aarav Sharma", phone: "9876543210", class: "Play Group", daycare: true, chess: false, dance: false, payments: [{ amount: 10000, date: "2026-10-20 10:30 AM", method: "PhonePe" }] },
@@ -286,7 +287,7 @@
         currentPin = "";
         updatePinDisplay();
       } else {
-        alert("Incorrect PIN! Try again.");
+        alert("Incorrect PIN! Please enter 5821.");
         clearPin();
       }
     }
